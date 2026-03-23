@@ -22,7 +22,9 @@ A React + Vite + Supabase restaurant POS.
      - `VITE_SUPABASE_ANON_KEY` — anon/public key  
    - In the Supabase **SQL Editor**, run the migration:
      - `supabase/migrations/20250318000000_initial_schema.sql`  
-     - This creates `tables`, `orders`, `order_items`, and `stock`.  
+  - `supabase/migrations/20260318000100_state_sync_tables.sql`
+  - `supabase/migrations/20260318000200_stock_inventory.sql`
+  - This creates/extends `tables`, `staff`, `orders`, `order_items`, `payments`, and `stock`.
    - (Optional) Seed 16 tables: in SQL Editor run:
      ```sql
      insert into public.tables (name, status)

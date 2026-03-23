@@ -3,6 +3,9 @@ import { formatGBP } from '../lib/currency'
 import './AddItemModal.css'
 
 const COOK_LEVELS = ['Rare', 'Medium Rare', 'Medium', 'Medium Well', 'Well Done']
+const FOOD_NOTE_PRESETS = ['No salt', 'No spice', 'Extra cheese', 'Well done', 'No sauce']
+const DRINK_NOTE_PRESETS = ['No ice', 'Extra ice', 'No sugar', 'With lemon', 'Large glass']
+const UNIVERSAL_NOTE_PRESETS = ['No allergy', 'Rush']
 
 export default function AddItemModal({ item, initialQty = 1, onClose, onConfirm }) {
   const [qty, setQty] = useState(1)
@@ -23,6 +26,10 @@ export default function AddItemModal({ item, initialQty = 1, onClose, onConfirm 
 
   if (!item) return null
 
+  const itemCategory = String(item.category || '').toLowerCase()
+  const categoryPresets = itemCategory === 'drinks' ? DRINK_NOTE_PRESETS : FOOD_NOTE_PRESETS
+  const notePresets = [...categoryPresets, ...UNIVERSAL_NOTE_PRESETS]
+
   const handleBackdrop = (e) => {
     if (e.target === e.currentTarget) onClose()
   }
@@ -37,6 +44,19 @@ export default function AddItemModal({ item, initialQty = 1, onClose, onConfirm 
       cookLevel: showCook ? cookLevel : null,
     })
     onClose()
+  }
+
+  const handlePresetNote = (preset) => {
+    setNote((prev) => {
+      const current = String(prev || '').trim()
+      if (!current) return preset
+      const exists = current
+        .split(',')
+        .map((part) => part.trim().toLowerCase())
+        .includes(preset.toLowerCase())
+      if (exists) return current
+      return `${current}, ${preset}`
+    })
   }
 
   return (
@@ -98,6 +118,18 @@ export default function AddItemModal({ item, initialQty = 1, onClose, onConfirm 
             onChange={(e) => setNote(e.target.value)}
             autoComplete="off"
           />
+          <div className="add-item-modal-note-presets" aria-label="Quick note presets">
+            {notePresets.map((preset) => (
+              <button
+                key={preset}
+                type="button"
+                className="add-item-modal-note-chip"
+                onClick={() => handlePresetNote(preset)}
+              >
+                {preset}
+              </button>
+            ))}
+          </div>
         </label>
 
         {showCook && (

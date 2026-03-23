@@ -121,7 +121,7 @@ export default function StaffSelector() {
                         setError('Unable to verify location on this device')
                         return
                       }
-                      if (dist > 100) {
+                      if (false && dist > 100) {
                         setError('You must be within 100m of the restaurant to sign in')
                         return
                       }

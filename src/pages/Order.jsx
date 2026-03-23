@@ -58,6 +58,7 @@ function parseDiscountInput(raw, subtotal) {
 
 export default function Order({ tableId, onClose }) {
   const selectedTable = tableId != null ? String(tableId) : null
+  const isManagerRole = getCurrentStaffRole() === 'manager'
   const canAdjustTotal = () => {
     const r = getCurrentStaffRole()
     return r === 'owner' || r === 'manager'
@@ -86,6 +87,8 @@ export default function Order({ tableId, onClose }) {
     if (typeof window === 'undefined') return false
     return window.localStorage.getItem('tableone-skip-send-confirm') === '1'
   })
+  const [hasExistingOrder, setHasExistingOrder] = useState(false)
+  const [isEditMode, setIsEditMode] = useState(false)
   const [, setStoreTick] = useState(0)
   const [addModalItem, setAddModalItem] = useState(null)
   const addFeedbackTimerRef = useRef(null)
@@ -94,6 +97,7 @@ export default function Order({ tableId, onClose }) {
   const addTapGuardRef = useRef({})
 
   const bump = () => setStoreTick((t) => t + 1)
+  const canModifyOrder = !hasExistingOrder || !isManagerRole || isEditMode
 
   const syncItemsToStore = () => {
     setItems(
@@ -105,16 +109,24 @@ export default function Order({ tableId, onClose }) {
 
   useEffect(() => {
     const order = getOrder(selectedTable)
+    const existing = !order.isPaid && (order.items?.length || 0) > 0
+    setHasExistingOrder(existing)
+    setIsEditMode(false)
     if (order.isPaid) {
       setOrderItems([])
     } else {
       setOrderItems(
         order.items.map((i) => {
           const category = allMenuItems.find((m) => m.id === i.id)?.category || 'Food'
+          const qty = Number(i.qty) || 0
+          const hasExplicitSentQty = i.sentQty != null && Number.isFinite(Number(i.sentQty))
+          // Legacy orders may not have sentQty. If the order was already submitted,
+          // treat existing lines as already sent so only new additions are sent next.
+          const inferredSentQty = order.lastSubmittedAt ? qty : 0
           return {
             ...i,
-            qty: i.qty,
-            sentQty: Number(i.sentQty) || 0,
+            qty,
+            sentQty: hasExplicitSentQty ? Number(i.sentQty) || 0 : inferredSentQty,
             category: i.category || category,
             route: i.route || (category === 'Drinks' ? 'bar' : 'kitchen'),
             allergy: i.allergy ?? null,
@@ -149,15 +161,17 @@ export default function Order({ tableId, onClose }) {
   useEffect(() => {
     const stored = getOrder(selectedTable)
     if (orderItems.length === 0 && stored.items.length > 0) return
+    if (isManagerRole && hasExistingOrder) return
     const staffName = getStaffName()
     setItems(
       selectedTable,
       orderItems.map((i) => orderItemForStore({ ...i })),
       staffName
     )
-  }, [selectedTable, orderItems])
+  }, [selectedTable, orderItems, isManagerRole, hasExistingOrder])
 
   const updateLineField = (index, patch) => {
+    if (!canModifyOrder) return
     setOrderItems((prev) =>
       prev.map((i, idx) => (idx === index ? { ...i, ...patch } : i))
     )
@@ -208,6 +222,7 @@ export default function Order({ tableId, onClose }) {
   }
 
   const changeCardQty = (itemId, delta) => {
+    if (!canModifyOrder) return
     setCardQtyById((prev) => {
       const next = Math.max(1, Math.min(99, getCardQty(itemId) + delta))
       return { ...prev, [itemId]: next }
@@ -215,6 +230,7 @@ export default function Order({ tableId, onClose }) {
   }
 
   const addItem = (item, qtyToAdd = 1) => {
+    if (!canModifyOrder) return
     let feedbackMessage = `Added: ${item.name} x${Math.max(1, Math.min(99, Number(qtyToAdd) || 1))}`
     let feedbackButton = 'Added ✔'
     const qtyAdd = Math.max(1, Math.min(99, Number(qtyToAdd) || 1))
@@ -257,6 +273,7 @@ export default function Order({ tableId, onClose }) {
   }
 
   const handleAddModalConfirm = ({ item, qty, allergy, note, cookLevel }) => {
+    if (!canModifyOrder) return
     if (!item) return
     setOrderItems((prev) => [
       ...prev,
@@ -277,12 +294,14 @@ export default function Order({ tableId, onClose }) {
   }
 
   const increaseQty = (index) => {
+    if (!canModifyOrder) return
     setOrderItems((prev) =>
       prev.map((i, idx) => (idx === index ? { ...i, qty: i.qty + 1 } : i))
     )
   }
 
   const decreaseQty = (index) => {
+    if (!canModifyOrder) return
     setOrderItems((prev) => {
       if (prev[index].qty <= 1) {
         flashOrderEditFeedback('Item removed')
@@ -293,11 +312,13 @@ export default function Order({ tableId, onClose }) {
   }
 
   const removeLine = (index) => {
+    if (!canModifyOrder) return
     flashOrderEditFeedback('Item removed')
     setOrderItems((prev) => prev.filter((_, i) => i !== index))
   }
 
   const voidLine = (index) => {
+    if (!canModifyOrder) return
     setOrderItems((prev) => {
       const target = prev[index]
       if (!target) return prev
@@ -394,6 +415,14 @@ export default function Order({ tableId, onClose }) {
       setSendState('error')
       setSendFeedback(`Error: ${err?.message || 'failed to send order'}`)
     }
+  }
+
+  const handleSaveChanges = () => {
+    if (!isManagerRole || !hasExistingOrder || !isEditMode) return
+    syncItemsToStore()
+    bump()
+    setIsEditMode(false)
+    flashOrderEditFeedback('Changes saved')
   }
 
   const handleClearBill = () => {
@@ -582,6 +611,7 @@ export default function Order({ tableId, onClose }) {
                     className="menu-item-qty-btn"
                     onClick={() => changeCardQty(item.id, -1)}
                     aria-label={`Decrease ${item.name} quantity`}
+                    disabled={!canModifyOrder}
                   >
                     −
                   </button>
@@ -591,6 +621,7 @@ export default function Order({ tableId, onClose }) {
                     className="menu-item-qty-btn"
                     onClick={() => changeCardQty(item.id, 1)}
                     aria-label={`Increase ${item.name} quantity`}
+                    disabled={!canModifyOrder}
                   >
                     +
                   </button>
@@ -602,6 +633,7 @@ export default function Order({ tableId, onClose }) {
                     if (!allowAddTap(`add:${item.id}`)) return
                     addItem(item, getCardQty(item.id))
                   }}
+                  disabled={!canModifyOrder}
                 >
                   {addFlashItemId === item.id ? addFlashText : 'Add'}
                 </button>
@@ -612,6 +644,7 @@ export default function Order({ tableId, onClose }) {
                     if (!allowAddTap(`note:${item.id}`)) return
                     setAddModalItem(item)
                   }}
+                  disabled={!canModifyOrder}
                 >
                   Add with note
                 </button>
@@ -622,6 +655,24 @@ export default function Order({ tableId, onClose }) {
 
         <aside className="summary-panel">
           <h2 className="summary-title">Order</h2>
+          {isManagerRole && hasExistingOrder && !isEditMode && (
+            <button
+              type="button"
+              className="clear-order-btn"
+              onClick={() => setIsEditMode(true)}
+            >
+              Edit Order
+            </button>
+          )}
+          {isManagerRole && hasExistingOrder && isEditMode && (
+            <button
+              type="button"
+              className="submit-order-btn"
+              onClick={handleSaveChanges}
+            >
+              Save Changes
+            </button>
+          )}
           {orderEditFeedback && (
             <p className="summary-send-feedback summary-send-feedback--error" aria-live="polite">
               {orderEditFeedback}
@@ -673,6 +724,7 @@ export default function Order({ tableId, onClose }) {
                           className="summary-inline-input summary-inline-input--allergy"
                           placeholder="e.g. nuts, shellfish"
                           value={item.allergy ?? ''}
+                          disabled={!canModifyOrder}
                           onChange={(e) =>
                             updateLineField(index, {
                               allergy: e.target.value.trim() || null,
@@ -688,6 +740,7 @@ export default function Order({ tableId, onClose }) {
                               key={lvl}
                               type="button"
                               className={`cook-chip ${item.cookLevel === lvl ? 'active' : ''}`}
+                              disabled={!canModifyOrder}
                               onClick={() =>
                                 updateLineField(index, {
                                   cookLevel: item.cookLevel === lvl ? null : lvl,
@@ -706,6 +759,7 @@ export default function Order({ tableId, onClose }) {
                           className="summary-inline-input"
                           placeholder="Extra instructions"
                           value={item.note ?? ''}
+                          disabled={!canModifyOrder}
                           onChange={(e) => {
                             const v = e.target.value
                             const trimmed = v.trim() || null
@@ -724,6 +778,7 @@ export default function Order({ tableId, onClose }) {
                         className="summary-btn summary-btn-minus"
                         onClick={() => decreaseQty(index)}
                         aria-label="Decrease quantity"
+                        disabled={!canModifyOrder}
                       >
                         −
                       </button>
@@ -733,6 +788,7 @@ export default function Order({ tableId, onClose }) {
                         className="summary-btn summary-btn-plus"
                         onClick={() => increaseQty(index)}
                         aria-label="Increase quantity"
+                        disabled={!canModifyOrder}
                       >
                         +
                       </button>
@@ -741,6 +797,7 @@ export default function Order({ tableId, onClose }) {
                         className="summary-btn-remove-text"
                         onClick={() => removeLine(index)}
                         aria-label="Remove item"
+                        disabled={!canModifyOrder}
                       >
                         X
                       </button>
@@ -749,6 +806,7 @@ export default function Order({ tableId, onClose }) {
                         className="summary-btn-void"
                         onClick={() => voidLine(index)}
                         aria-label="Void item"
+                        disabled={!canModifyOrder}
                       >
                         Void
                       </button>
@@ -767,6 +825,7 @@ export default function Order({ tableId, onClose }) {
                   if (!allowAddTap('add:dummy')) return
                   addItem(DUMMY_PASTA, 1)
                 }}
+                disabled={!canModifyOrder}
               >
                 + Add
               </button>
@@ -777,6 +836,7 @@ export default function Order({ tableId, onClose }) {
                   if (!allowAddTap('note:dummy')) return
                   setAddModalItem(DUMMY_PASTA)
                 }}
+                disabled={!canModifyOrder}
               >
                 + Add with note
               </button>

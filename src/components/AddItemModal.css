@@ -105,6 +105,29 @@
   border-color: var(--accent);
 }
 
+.add-item-modal-note-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.15rem;
+}
+
+.add-item-modal-note-chip {
+  min-height: 32px;
+  padding: 0.25rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface-hover);
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-weight: 600;
+  touch-action: manipulation;
+}
+
+.add-item-modal-note-chip:active {
+  transform: scale(0.98);
+}
+
 .add-item-modal-cook {
   display: flex;
   flex-wrap: wrap;

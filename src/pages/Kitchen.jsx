@@ -19,11 +19,12 @@ function formatSince(ts) {
 }
 
 function LineCard({ line, onStatusChange, onBumpReady }) {
-  const statusOptions = ['preparing', 'ready']
   const normalizedStatus =
-    line.status === 'completed' || line.status === 'ready'
-      ? 'ready'
-      : 'preparing'
+    line.status === 'completed'
+      ? 'completed'
+      : line.status === 'ready'
+        ? 'ready'
+        : 'preparing'
   return (
     <div className="kitchen-line-card">
       <div className="kitchen-line-header">
@@ -42,18 +43,25 @@ function LineCard({ line, onStatusChange, onBumpReady }) {
         <div className="kitchen-line-staff">By {line.staffName}</div>
       )}
       <div className="kitchen-line-actions">
-        <select
-          value={normalizedStatus}
-          onChange={(e) => onStatusChange(line.id, e.target.value)}
-          className="kitchen-line-select"
-        >
-          {statusOptions.map((s) => (
-            <option key={s} value={s}>{s}</option>
-          ))}
-        </select>
+        {normalizedStatus === 'preparing' && (
+          <button
+            type="button"
+            className="kitchen-line-select"
+            onClick={() => onStatusChange(line.id, 'ready')}
+          >
+            Mark Ready
+          </button>
+        )}
         {normalizedStatus === 'ready' && (
-          <button type="button" className="kitchen-line-select" onClick={() => onBumpReady(line.id)}>
-            Bump
+          <button
+            type="button"
+            className="kitchen-line-select"
+            onClick={() => {
+              onStatusChange(line.id, 'completed')
+              onBumpReady(line.id)
+            }}
+          >
+            Mark Served
           </button>
         )}
       </div>

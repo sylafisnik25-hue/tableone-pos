@@ -9,9 +9,30 @@
  */
 
 const store = Object.create(null)
+const listeners = new Set()
+
+function notifyOrdersChange() {
+  for (const cb of listeners) cb()
+}
 
 function key(tableId) {
   return String(tableId)
+}
+
+function makeEmptyOrder() {
+  return {
+    items: [],
+    isPaid: false,
+    openedBy: null,
+    updatedBy: null,
+    closedBy: null,
+    payments: [],
+    paidAt: null,
+    discount: 0,
+    adjustedTotal: null,
+    lastSubmissionId: null,
+    lastSubmittedAt: null,
+  }
 }
 
 function lineSubtotal(items) {
@@ -46,19 +67,7 @@ export function getRemainingBalance(tableId) {
 export function getOrder(tableId) {
   const k = key(tableId)
   if (!store[k]) {
-    store[k] = {
-      items: [],
-      isPaid: false,
-      openedBy: null,
-      updatedBy: null,
-      closedBy: null,
-      payments: [],
-      paidAt: null,
-      discount: 0,
-      adjustedTotal: null,
-      lastSubmissionId: null,
-      lastSubmittedAt: null,
-    }
+    store[k] = makeEmptyOrder()
   }
   return store[k]
 }
@@ -78,52 +87,32 @@ export function getItemCount(tableId) {
 export function setItems(tableId, items, staffName = null) {
   const k = key(tableId)
   if (!store[k]) {
-    store[k] = {
-      items: [],
-      isPaid: false,
-      openedBy: null,
-      updatedBy: null,
-      closedBy: null,
-      payments: [],
-      paidAt: null,
-      discount: 0,
-      adjustedTotal: null,
-      lastSubmissionId: null,
-      lastSubmittedAt: null,
-    }
+    store[k] = makeEmptyOrder()
   }
   store[k].items = items
   if (items.length > 0) store[k].isPaid = false
   if (staffName) store[k].updatedBy = staffName
+  notifyOrdersChange()
 }
 
 export function setOpenedBy(tableId, staffName) {
   const k = key(tableId)
   if (!store[k]) getOrder(tableId)
   store[k].openedBy = store[k].openedBy || staffName
+  notifyOrdersChange()
 }
 
 export function clearOrder(tableId) {
   const k = key(tableId)
-  store[k] = {
-    items: [],
-    isPaid: false,
-    openedBy: null,
-    updatedBy: null,
-    closedBy: null,
-    payments: [],
-    paidAt: null,
-    discount: 0,
-    adjustedTotal: null,
-    lastSubmissionId: null,
-    lastSubmittedAt: null,
-  }
+  store[k] = makeEmptyOrder()
+  notifyOrdersChange()
 }
 
 export function setDiscount(tableId, amount) {
   const k = key(tableId)
   if (!store[k]) getOrder(tableId)
   store[k].discount = Math.max(0, Number(amount) || 0)
+  notifyOrdersChange()
 }
 
 export function setAdjustedTotal(tableId, amount) {
@@ -131,6 +120,7 @@ export function setAdjustedTotal(tableId, amount) {
   if (!store[k]) getOrder(tableId)
   const n = amount === null || amount === '' ? null : Number(amount)
   store[k].adjustedTotal = n
+  notifyOrdersChange()
 }
 
 function settleBill(tableId, staffName) {
@@ -162,6 +152,7 @@ export function addPartialPayment(tableId, amount, method, staffName = null) {
   if (getRemainingBalance(tableId) <= 0.005) {
     settleBill(tableId, staffName)
   }
+  notifyOrdersChange()
 }
 
 /**
@@ -193,6 +184,7 @@ export function markPaid(tableId, payments = [], staffName = null) {
   store[k].discount = 0
   store[k].adjustedTotal = null
   if (staffName) store[k].closedBy = staffName
+  notifyOrdersChange()
 }
 
 export function markOrderSubmitted(tableId, submissionId) {
@@ -200,10 +192,31 @@ export function markOrderSubmitted(tableId, submissionId) {
   if (!store[k]) getOrder(tableId)
   store[k].lastSubmissionId = submissionId || null
   store[k].lastSubmittedAt = Date.now()
+  notifyOrdersChange()
 }
 
 export function getAllOrders() {
   return store
+}
+
+export function replaceAllOrders(next) {
+  for (const existing of Object.keys(store)) delete store[existing]
+  if (next && typeof next === 'object') {
+    for (const [tableId, order] of Object.entries(next)) {
+      store[String(tableId)] = {
+        ...makeEmptyOrder(),
+        ...(order || {}),
+        items: Array.isArray(order?.items) ? order.items : [],
+        payments: Array.isArray(order?.payments) ? order.payments : [],
+      }
+    }
+  }
+  notifyOrdersChange()
+}
+
+export function subscribeOrdersChange(cb) {
+  listeners.add(cb)
+  return () => listeners.delete(cb)
 }
 
 export function getOrderHistory(limit = 50) {

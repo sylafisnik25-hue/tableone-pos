@@ -44,6 +44,11 @@ let config = {
   ...defaultConfig,
   staff: defaultConfig.staff.map((s) => ({ ...s })),
 }
+const configListeners = new Set()
+
+function notifyConfigChange() {
+  for (const cb of configListeners) cb()
+}
 
 export function getConfig() {
   return config
@@ -73,6 +78,17 @@ export function getStaffList() {
   return config.staff
 }
 
+export function subscribeConfigChanges(cb) {
+  configListeners.add(cb)
+  return () => configListeners.delete(cb)
+}
+
+export function setStaffList(staff) {
+  if (!Array.isArray(staff)) return
+  config.staff = staff.map((s) => ({ ...s }))
+  notifyConfigChange()
+}
+
 function normalizeRole(role) {
   if (role === 'owner' || role === 'manager' || role === 'cashier' || role === 'chef') return role
   if (role === 'till') return 'cashier'
@@ -93,12 +109,14 @@ export function addStaffMember({ name, role, pin }) {
     ...config.staff,
     { id, name: cleanName, role: cleanRole, pin: cleanPin, onShift: true },
   ]
+  notifyConfigChange()
   return true
 }
 
 export function removeStaffMember(staffId) {
   const before = config.staff.length
   config.staff = config.staff.filter((s) => String(s.id) !== String(staffId))
+  if (config.staff.length < before) notifyConfigChange()
   return config.staff.length < before
 }
 
@@ -118,6 +136,7 @@ export function updateStaffMember(staffId, updates) {
     if (updates?.onShift != null) next.onShift = !!updates.onShift
     return next
   })
+  if (changed) notifyConfigChange()
   return changed
 }
 
@@ -152,4 +171,5 @@ export function getRestaurantLocation() {
 
 export function updateConfig(updates) {
   config = { ...config, ...updates }
+  notifyConfigChange()
 }

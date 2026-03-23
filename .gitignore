@@ -1,0 +1,14 @@
+# Dependencies
+node_modules
+
+# Build
+dist
+
+# Env (Supabase keys)
+.env
+.env.local
+.env.*.local
+
+# Editor / OS
+.DS_Store
+*.log

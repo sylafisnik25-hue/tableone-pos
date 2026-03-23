@@ -1,0 +1,111 @@
+.kitchen-page {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.kitchen-title {
+  font-size: 1.35rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.kitchen-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.kitchen-tabs button {
+  flex: 1;
+  min-height: 48px;
+  padding: 0.75rem;
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 1rem;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.kitchen-tabs button.active {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(34, 197, 94, 0.12);
+}
+
+.kitchen-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+}
+
+.kitchen-empty {
+  color: var(--text-muted);
+  grid-column: 1 / -1;
+}
+
+.kitchen-line-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.kitchen-line-header {
+  display: flex;
+  justify-content: space-between;
+}
+
+.kitchen-line-table {
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.kitchen-line-time {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.kitchen-line-name {
+  font-size: 1rem;
+}
+
+.kitchen-line-allergy {
+  display: block;
+  font-size: 0.9rem;
+  color: #f87171;
+  font-weight: 600;
+}
+
+.kitchen-line-cook {
+  display: block;
+  font-size: 0.85rem;
+  color: #facc15;
+}
+
+.kitchen-line-note {
+  display: block;
+  font-size: 0.9rem;
+  color: var(--accent);
+  font-style: italic;
+}
+
+.kitchen-line-staff {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.kitchen-line-select {
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-size: 0.9rem;
+  min-height: 44px;
+}

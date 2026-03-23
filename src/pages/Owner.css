@@ -1,0 +1,177 @@
+.owner-page {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.owner-title {
+  font-size: 1.35rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.owner-filters {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.owner-filters button {
+  padding: 0.6rem 1rem;
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-muted);
+  font-weight: 500;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.owner-filters button.active {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(34, 197, 94, 0.12);
+}
+
+.owner-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.owner-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.owner-card-label {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.owner-card-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.owner-section {
+  margin-bottom: 1.5rem;
+}
+
+.owner-section-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+.owner-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.75rem;
+}
+
+.owner-controls label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.owner-bill-preview {
+  flex: 1 1 100%;
+  min-width: 200px;
+  padding: 0.65rem 0.75rem;
+  background: var(--surface-hover);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 0.9rem;
+}
+
+.owner-bill-preview-total {
+  margin: 0 0 0.35rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.owner-bill-preview-lines {
+  margin: 0;
+  padding-left: 1.1rem;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.owner-select,
+.owner-input {
+  padding: 0.5rem 0.75rem;
+  min-height: 44px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-size: 1rem;
+  min-width: 100px;
+}
+
+.owner-input {
+  min-width: 90px;
+}
+
+.owner-btn {
+  padding: 0.5rem 1rem;
+  min-height: 44px;
+  background: var(--surface-hover);
+  color: var(--text);
+  border-radius: var(--radius);
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.owner-btn:hover:not(:disabled) {
+  background: var(--accent);
+  color: white;
+}
+
+.owner-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.owner-btn-danger:hover:not(:disabled) {
+  background: var(--danger);
+  color: white;
+}
+
+.owner-payment-split {
+  font-size: 1rem;
+  color: var(--text-muted);
+}
+
+.owner-empty {
+  color: var(--text-muted);
+}
+
+.owner-history {
+  list-style: none;
+}
+
+.owner-history li {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.owner-history a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.owner-history-meta {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}

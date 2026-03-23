@@ -1,0 +1,180 @@
+.home-page {
+  max-width: 980px;
+  margin: 0 auto;
+  background:
+    radial-gradient(circle at top right, rgba(34, 197, 94, 0.08), transparent 45%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0));
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.4rem;
+}
+
+.home-title {
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin-bottom: 0.2rem;
+}
+
+.home-subtitle {
+  color: var(--text-muted);
+  margin-bottom: 1.4rem;
+  font-size: 1rem;
+  font-weight: 400;
+}
+
+.home-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.home-card {
+  min-height: 155px;
+  padding: 1rem 1.1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  text-align: left;
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  text-decoration: none;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22);
+  transition: border-color 0.2s, background 0.2s, transform 0.12s;
+  background-image: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.02),
+    rgba(255, 255, 255, 0)
+  );
+}
+
+.home-card:hover {
+  border-color: var(--accent);
+  background: var(--surface-hover);
+  transform: scale(1.02);
+}
+
+.home-card:active {
+  transform: scale(0.98);
+}
+
+.home-card-featured {
+  border-color: rgba(34, 197, 94, 0.55);
+  box-shadow: 0 12px 28px rgba(34, 197, 94, 0.14);
+}
+
+.home-card-icon {
+  font-size: 1.4rem;
+  margin-bottom: 0.55rem;
+}
+
+.home-card-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-bottom: 0.35rem;
+}
+
+.home-card-subtitle {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  line-height: 1.35;
+}
+
+.home-secondary-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.home-role-panel {
+  margin-bottom: 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.home-role-panel h2 {
+  font-size: 1rem;
+  margin-bottom: 0.35rem;
+}
+
+.home-role-panel p {
+  color: var(--text-muted);
+  margin-bottom: 0.55rem;
+  font-size: 0.9rem;
+}
+
+.home-role-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.home-role-stat {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.5rem 0.6rem;
+}
+
+.home-role-stat span {
+  display: block;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
+
+.home-role-stat strong {
+  font-size: 1rem;
+}
+
+.home-recent-list {
+  margin-top: 0.6rem;
+  padding-left: 1rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.home-secondary-btn {
+  min-height: 52px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+}
+
+.home-secondary-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.home-secondary-btn-danger {
+  color: #fca5a5;
+  border-color: rgba(239, 68, 68, 0.55);
+}
+
+@media (max-width: 640px) {
+  .home-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .home-card {
+    min-height: 120px;
+  }
+
+  .home-secondary-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .home-role-grid {
+    grid-template-columns: 1fr;
+  }
+}

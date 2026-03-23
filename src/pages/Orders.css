@@ -1,0 +1,67 @@
+.orders-page {
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.orders-title {
+  font-size: 1.35rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.orders-empty {
+  color: var(--text-muted);
+}
+
+.orders-list {
+  list-style: none;
+}
+
+.orders-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.orders-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.orders-item-table {
+  font-weight: 600;
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.orders-item-table:hover {
+  text-decoration: underline;
+}
+
+.orders-item-date {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.orders-item-staff {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-top: 0.35rem;
+}
+
+.orders-item-payments {
+  margin-top: 0.35rem;
+  font-size: 0.85rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.orders-item-pay {
+  background: var(--surface-hover);
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+}
